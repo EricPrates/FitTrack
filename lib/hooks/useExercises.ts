@@ -5,15 +5,15 @@ import { Exercise } from '@/app/types/types';
 export const useExercises = () => {
   const [searchTargetMuscle, setSearchTargetMuscle] = useState<string[]>([]);
   const { startLoading, stopLoading } = useAuth();
-  const [selectedTargetMuscle, setSelectedTargetMuscle] = useState<string>('');
+  const [selectedTargetMuscle, setSelectedTargetMuscle] = useState<string>('serratus anterior');
   const [exerciesFound, setExerciesFound] = useState<Exercise[]>([]);
   const [searchTerms, setSearchTerms] = useState<string>('');
   const [selectedBodyPart, setSelectedBodyPart] = useState<string>('');
   const [selectedExercises, setSelectedExercises] = useState<Exercise[]>([]);
 
- 
-  
-  const handleTargetMuscle = async (bodyPart: string) => {
+  //funções de novo treino
+
+  const handleTargetMuscle = async (bodyPart: string ) => {
 
     startLoading();
     const { data, error } = await supabase
@@ -56,27 +56,30 @@ export const useExercises = () => {
     }
   };
 
-  // Filtra exercícios baseado no termo de busca
+
   const filteredExercises = exerciesFound.filter(exercise =>
     exercise.name?.toLowerCase().includes(searchTerms.toLowerCase())
   );
+
+
+
+
   return {
-    searchTargetMuscle,
-    handleTargetMuscle,
-    selectedTargetMuscle,
-    setSelectedTargetMuscle,
-    exerciesFound,
-    setSelectedExercises,
-    selectedExercises,
-    handleExerciseSearch,
-    searchTerms,
-    setSearchTerms,
-    filteredExercises,
-    selectedBodyPart,
-    setSelectedBodyPart,
-    
+      searchTargetMuscle,
+      handleTargetMuscle,
+      selectedTargetMuscle,
+      setSelectedTargetMuscle,
+      exerciesFound,
+      setSelectedExercises,
+      selectedExercises,
+      handleExerciseSearch,
+      searchTerms,
+      setSearchTerms,
+      filteredExercises,
+      selectedBodyPart,
+      setSelectedBodyPart,
 
 
+    }
   }
-}
 

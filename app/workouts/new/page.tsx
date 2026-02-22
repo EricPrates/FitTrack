@@ -1,7 +1,6 @@
 'use client';
-import { useReducer, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { bodyParts } from '@/app/types/types'
-import { supabase } from '../../../lib/server/supabase';
 import { Search, Plus, X, ChevronDown, Dumbbell, Calendar, Clock, Save } from "lucide-react";
 import SelectComponent from "@/components/selectComponent";
 import { useExercises } from "@/lib/hooks/useExercises";
@@ -11,16 +10,36 @@ import ExerciseCard from "@/components/ExerciseCard";
 export default function NewWorkoutPage() {
 
     const [openCard, setOpenCard] = useState<boolean>(false);
+
     const { addWorkout, workout, setWorkout } = useWorkout();
+
     const { loading } = useAuth();
+
     const { handleTargetMuscle, handleExerciseSearch,
         searchTargetMuscle, selectedTargetMuscle,
         setSelectedTargetMuscle, exerciesFound, searchTerms,
         setSearchTerms, filteredExercises, selectedBodyPart, setSelectedBodyPart,
         selectedExercises, setSelectedExercises } = useExercises();
+
     const uniqueMuscle = [...new Set(searchTargetMuscle)];
 
-
+        useEffect(()  => {
+            const searchMuscles = async () => {
+                
+                    await handleTargetMuscle('chest');
+            }
+            searchMuscles();
+           }, []
+    );
+    useEffect(()  => {
+            const searchExe = async () => {
+                
+                    await handleExerciseSearch('serratus anterior');
+            }
+            searchExe();
+           }, [selectedBodyPart])
+    
+        
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
             <div className="max-w-7xl mx-auto">
@@ -84,7 +103,7 @@ export default function NewWorkoutPage() {
                                     </div>
 
 
-
+                                {/*componente de select para escolher o dia da semana do treino*/}
                                     <SelectComponent
                                         label="Dia da Semana"
                                         options={[
@@ -103,17 +122,18 @@ export default function NewWorkoutPage() {
 
                                 </div>
 
-                                {/* Seletor de Parte do Corpo */}
+                                {/* Componente Select para selecionar parte do corpo */}
                                 <div className="space-y-2">
 
                                     <div className="flex flex-col sm:flex-row gap-3">
                                         <SelectComponent
+                                        value={selectedBodyPart}
                                             options={bodyParts}
                                             onChange={(value) => {
                                                 setSelectedBodyPart(value);
                                                 handleTargetMuscle(value);
                                             }}
-                                            value={selectedBodyPart}
+                                            
                                             label="Parte do Corpo"
                                         />
 
@@ -271,11 +291,11 @@ export default function NewWorkoutPage() {
                                         className="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-orange-200 hover:shadow-xl"
                                         onClick={async () => {
                                             try {
-                                                await addWorkout(workout);
-                                                alert('Treino salvo com sucesso!');
+                                                const result = await addWorkout(workout, selectedExercises);
+                                                alert(result);
                                             } catch (error) {
                                                 console.error('Erro ao salvar treino:', error);
-                                                alert('Erro ao salvar treino.');
+                                                alert(error instanceof Error ? error.message : 'Erro desconhecido');
                                             }
                                         }}
                                     >
@@ -288,7 +308,7 @@ export default function NewWorkoutPage() {
                     </div>
                 </div>
 
-                {/* Resumo do Treino (se houver exercícios) */}
+                {/* Resumo do Treino (se houver exercícios) adicionar sets, reps, descanso ordem do exercício */}
                 {selectedExercises.length > 0 && 
                     <ExerciseCard selectedExercises={selectedExercises} setSelectedExercises={setSelectedExercises}></ExerciseCard>
                 }

@@ -32,8 +32,13 @@ export interface Exercise {
   bodyparts: string[] | undefined,
   equipments: string[] | undefined,
   secondarymuscles: string[] | undefined,
-  instructions: string | undefined
-  
+  instructions: string | undefined,
+  reps: number | undefined,
+  sets: number | undefined,
+  restSeconds: number | undefined,
+  notes: string | undefined,
+  orderIndex: number | undefined,
+  weight: number | undefined
 }
 
 export interface WorkoutExercise {
@@ -43,4 +48,8 @@ export interface WorkoutExercise {
   reps: number
   restSeconds: number
   notes: string | null
+  orderIndex: number| undefined
+  weight: number | undefined
+  created_at: Date
+  
 }
