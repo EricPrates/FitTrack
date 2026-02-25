@@ -6,6 +6,7 @@ import { supabase } from '@/lib/server/supabase'
 import { Eye, EyeOff, Lock, Mail, AlertCircle, Dumbbell, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { useAuth } from '../api/contexts/Auth'
+import { useUser } from '@/lib/hooks/useUser'
 
 export default function LoginPage() {
   const [email, setEmail] = useState<string>('')
@@ -14,9 +15,11 @@ export default function LoginPage() {
 
   const router = useRouter()
   const { login, error, loading } = useAuth()!;
+  const { addUser } = useUser();
 
   async function handleLogin(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    
     const success = await login(email.trim(), password.trim())
 
     if (success) {

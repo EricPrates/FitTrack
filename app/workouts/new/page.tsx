@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useReducer, useState } from "react";
-import { bodyParts } from '@/app/types/types'
+import { bodyParts, daysOfWeek } from '@/app/types/types'
 import { Search, Plus, X, ChevronDown, Dumbbell, Calendar, Clock, Save } from "lucide-react";
 import SelectComponent from "@/components/selectComponent";
 import { useExercises } from "@/lib/hooks/useExercises";
@@ -107,16 +107,10 @@ export default function NewWorkoutPage() {
                                     <SelectComponent
                                         label="Dia da Semana"
                                         options={[
-                                            { key: 'Segunda-feira', value: 1 },
-                                            { key: 'Terça-feira', value: 2 },
-                                            { key: 'Quarta-feira', value: 3 },
-                                            { key: 'Quinta-feira', value: 4 },
-                                            { key: 'Sexta-feira', value: 5 },
-                                            { key: 'Sábado', value: 6 },
-                                            { key: 'Domingo', value: 7 },
+                                            ...daysOfWeek.map(day => ({ key: day.key, value: day.value }))
                                         ]}
-                                        onChange={(value) => setWorkout({ ...workout, dateWorkout: Number(value) })}
-                                        value={workout.dateWorkout || ''}
+                                        onChange={(value) => setWorkout({ ...workout, dateworkout: Number(value) })}
+                                        value={workout.dateworkout || ''}
 
                                     />
 
@@ -292,7 +286,7 @@ export default function NewWorkoutPage() {
                                         onClick={async () => {
                                             try {
                                                 const result = await addWorkout(workout, selectedExercises);
-                                                alert(result);
+                                                alert(result.workout.name + ' salvo com sucesso!');
                                             } catch (error) {
                                                 console.error('Erro ao salvar treino:', error);
                                                 alert(error instanceof Error ? error.message : 'Erro desconhecido');

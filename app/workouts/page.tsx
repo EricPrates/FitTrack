@@ -5,6 +5,7 @@ import { supabase } from '@/lib/server/supabase';
 import type { Workout } from '@/app/types/types';
 import { useWorkout } from '@/lib/hooks/useWorkout';
 import { tryCatchErrorResult } from '@/lib/errors/error';
+
 export default function WorkoutsPage() {
 
     const {user} = useAuth();
@@ -34,9 +35,9 @@ export default function WorkoutsPage() {
               ) : (
                 <ul className="list-disc pl-5">
                   {allWorkouts.map(workout => (
-                    <li key={workout.name} className="mb-2">
+                    <li key={workout.id} className="mb-2">
                       <h3 className="text-lg font-medium">{workout.name}</h3>
-                      <p>{workout.description}</p>
+                      <p>{workout.dateworkout}</p>
                       <p className="text-sm text-gray-500">Created at: {new Date(workout.created_at?.toString() || '').toLocaleDateString()}</p>
 
                     </li>

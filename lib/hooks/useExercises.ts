@@ -5,7 +5,7 @@ import { Exercise } from '@/app/types/types';
 export const useExercises = () => {
   const [searchTargetMuscle, setSearchTargetMuscle] = useState<string[]>([]);
   const { startLoading, stopLoading } = useAuth();
-  const [selectedTargetMuscle, setSelectedTargetMuscle] = useState<string>('serratus anterior');
+  const [selectedTargetMuscle, setSelectedTargetMuscle] = useState<string>('');
   const [exerciesFound, setExerciesFound] = useState<Exercise[]>([]);
   const [searchTerms, setSearchTerms] = useState<string>('');
   const [selectedBodyPart, setSelectedBodyPart] = useState<string>('');

@@ -4,6 +4,8 @@ import React, { createContext, useState, useContext, ReactNode, useEffect } from
 import { User } from '@/app/types/types';
 import { supabase } from '@/lib/server/supabase';
 import { Activity, Dumbbell } from 'lucide-react';
+import { useUser } from '@/lib/hooks/useUser';
+
 
 interface UserContext {
     user: User | null;
@@ -22,6 +24,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    
 
     // Verificar sessão ao carregar
     useEffect(() => {
@@ -48,7 +51,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const login = async (email: string, password: string): Promise<boolean> => {
         setLoading(true);
         setError(null);
-
+        
         try {
             const { data, error } = await supabase.auth.signInWithPassword({
                 email,
@@ -59,8 +62,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 setError(error.message);
                 return false;
             }
-
             setUser(data.user as unknown as User);
+         
             return true;
         } catch (err) {
             setError('Erro ao fazer login');

@@ -4,11 +4,10 @@ import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/server/supabase'
 import Link from 'next/link'
-import { 
-  User, Mail, Lock, Eye, EyeOff, 
+import {   User, Mail, Lock, Eye, EyeOff, 
   CheckCircle, XCircle, Loader2, 
-  ArrowLeft, Dumbbell
-} from 'lucide-react'
+  ArrowLeft, Dumbbell} from 'lucide-react'
+  import { useUser } from '@/lib/hooks/useUser'
 
 export default function SignUp() {
   const [name, setName] = useState<string>('')
@@ -20,7 +19,9 @@ export default function SignUp() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string>('')
   const [success, setSuccess] = useState<string>('')
-  const router = useRouter()
+  const router = useRouter();
+  const { addUser } = useUser();
+
 
 
   const passwordRequirements = [
@@ -62,11 +63,16 @@ export default function SignUp() {
         password: password,
        
       })
-
+      addUser(await supabase.auth.getSession().then(({ data }) => data.session?.user?.id || ''), email.trim(), name.trim())
       if (signUpError) {
         setError(signUpError.message)
         return
       }
+
+      
+
+      
+
 
       // Sucesso
       setSuccess('Conta criada com sucesso! Verifique seu email para confirmar.')

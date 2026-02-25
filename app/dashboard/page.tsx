@@ -10,14 +10,9 @@ import {
 import { supabase } from '@/lib/server/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useAuth } from '../api/contexts/Auth'
+import { Workout_logs } from '../types/types'
 
-interface Workout {
-  id: string
-  name: string
-  duration: number
-  date: string
-  type: 'cardio' | 'strength' | 'flexibility'
-}
 
 interface Metric {
   name: string
@@ -28,8 +23,8 @@ interface Metric {
 }
 
 export default function Dashboard() {
-  const [user, setUser] = useState<any>(null)
-  const [workouts, setWorkouts] = useState<Workout[]>([])
+  const { user, logout } = useAuth()!;
+  const [workouts, setWorkouts] = useState<Workout_logs[]>([])
   const router = useRouter()
 
  
@@ -62,16 +57,10 @@ export default function Dashboard() {
   // Obter dados do usuário
   useEffect(() => {
     const fetchUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if(!user) {
-        router.push('/login')
-        return
-      }
-      setUser(user)
       const { data: workouts } = await supabase
         .from('workouts')
         .select('*')
-        .order('date', { ascending: false })
+        .order('created_at', { ascending: false })
         .limit(5)
       setWorkouts(workouts || [])
     }
@@ -130,7 +119,7 @@ export default function Dashboard() {
         {/* Saudação */}
         <div className="mb-6">
           <h2 className="text-xl font-bold text-gray-900">
-            Olá, {user?.user_metadata?.name?.split(' ')[0] || 'Atleta'}!
+            Olá, {user?.name?.split(' ')[0] || 'Atleta'}!
           </h2>
           <p className="text-gray-600">Bem-vindo ao seu dashboard</p>
         </div>
@@ -175,14 +164,14 @@ export default function Dashboard() {
                   >
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-gray-100 rounded-lg">
-                        {workout.type === 'cardio' && <Activity className="h-5 w-5 text-blue-500" />}
-                        {workout.type === 'strength' && <Dumbbell className="h-5 w-5 text-purple-500" />}
-                        {workout.type === 'flexibility' && <Target className="h-5 w-5 text-green-500" />}
+                        {workout.description === 'cardio' && <Activity className="h-5 w-5 text-blue-500" />}
+                        {workout.description === 'strength' && <Dumbbell className="h-5 w-5 text-purple-500" />}
+                        {workout.description === 'flexibility' && <Target className="h-5 w-5 text-green-500" />}
                       </div>
                       <div>
                         <h4 className="font-medium">{workout.name}</h4>
                         <p className="text-sm text-gray-500">
-                          {workout.duration} min • {formatDate(workout.date)}
+                          {workout.duration_minutes} min • {formatDate(workout.created_at?.toString() || '')}
                         </p>
                       </div>
                     </div>

@@ -10,12 +10,13 @@ export const useWorkout = () => {
 
 
   const [error, setError] = useState<string | null>(null);
-
+  
   const { addExercisesToWorkout } = useWorkoutExercises();
   const [workout, setWorkout] = useState<Workout>({
+    id:'',
     name: '',
     description: '',
-    dateWorkout: 0,
+    dateworkout: 0,
     user_id: '',
     created_at: new Date()
   });
@@ -28,9 +29,8 @@ export const useWorkout = () => {
   const getAllWorkouts = async () => {
     startLoading();
     const { data, error } = await supabase
-      .from('workouts')
+      .from('workout')
       .select('*')
-      .eq('user_id', user?.id)
       .order('created_at', { ascending: false });
 
     stopLoading();
@@ -59,7 +59,7 @@ export const useWorkout = () => {
   const addWorkout = async (workoutData: Workout, exercisesData: Exercise[]) => {
 
     startLoading();
-    if (!workoutData.name || !workoutData.dateWorkout) {
+    if (!workoutData.name || !workoutData.dateworkout) {
       throw new Error('Dados do treino incompletos');
     }
     if (!user) {
@@ -67,29 +67,23 @@ export const useWorkout = () => {
     }
 
     const { data: workout, error: WorkoutError } = await supabase
-      .from('workouts')
-      .insert([{ ...workoutData, user_id: user.id }])
+      .from('workout')
+      .insert([{ ...workoutData, user_id: user.id, created_at: new Date() }])
       .select()
       .single();
 
     if (WorkoutError) {
       stopLoading();
-      throw new Error('Erro ao criar treino: ' + WorkoutError.message);
+      throw new Error('Erro ao criar treino: Chegou aqui' + WorkoutError.message);
 
     }
 
-    const resultWorkoutExercises = await addExercisesToWorkout(exercisesData || [], workout.id);
-    if (!resultWorkoutExercises.success) {
-      deleteWorkout(workout.id);
-      stopLoading();
-      throw new Error('Erro ao associar exercícios ao treino: ' + resultWorkoutExercises.error);
-
-    };
+    
     stopLoading();
 
     return {
       workout,
-      exercises: resultWorkoutExercises.data
+    
     };
 
   }
