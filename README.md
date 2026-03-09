@@ -1,36 +1,102 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FitTrack
 
-## Getting Started
+**FitTrack** é uma aplicação web voltada para organização de treinos e acompanhamento de evolução física.
 
-First, run the development server:
+O projeto está **em desenvolvimento** e busca evoluir para uma **rede de interação fitness**, onde usuários poderão registrar seus treinos, acompanhar progresso e interagir com outras pessoas para manter a motivação e disciplina.
 
-```bash
+A aplicação foi desenvolvida utilizando **Next.js**, **React**, **TypeScript** e **Supabase**, com autenticação e banco de dados em nuvem.
+
+---
+
+# Objetivo do Projeto
+
+O objetivo do projeto é aplicar conceitos de desenvolvimento **full stack**, incluindo:
+
+* criação de aplicações web com Next.js
+* construção de interfaces com React
+* autenticação de usuários
+* integração com banco de dados em nuvem
+* manipulação de dados com TypeScript
+* organização e acompanhamento de rotinas de treino
+
+---
+
+# Funcionalidades (em desenvolvimento)
+
+O **FitTrack** busca oferecer funcionalidades como:
+
+* cadastro e login de usuários
+* autenticação utilizando Supabase
+* criação e organização de rotinas de treino
+* cadastro de exercícios
+* histórico de treinos realizados
+* acompanhamento de evolução física
+* interação entre usuários da plataforma
+
+---
+
+# Tecnologias Utilizadas
+
+## Frontend
+
+* React
+* Next.js
+* TypeScript
+
+## Backend / Backend as a Service
+
+* Supabase
+* Supabase Auth
+* Supabase Database
+
+---
+
+# Estrutura do Projeto
+
+A aplicação segue a estrutura padrão do Next.js.
+
+### Principais diretórios
+
+* `app/` → páginas da aplicação
+* `components/` → componentes reutilizáveis
+* `lib/` ou `services/` → configuração e integração com Supabase
+* `public/` → arquivos estáticos
+
+---
+
+# Como Executar o Projeto
+
+## 1. Clonar o repositório
+
+git clone <url-do-repositorio>
+
+## 2. Instalar dependências
+
+npm install
+
+## 3. Configurar variáveis de ambiente
+
+Criar um arquivo `.env.local` com as credenciais do Supabase:
+
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_key
+
+## 4. Executar o projeto
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 5. Abrir no navegador
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+http://localhost:3000
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+# Visão do Projeto
 
-To learn more about Next.js, take a look at the following resources:
+O **FitTrack** pretende se tornar uma **plataforma social fitness**, onde usuários poderão:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+* registrar seus treinos
+* acompanhar evolução e progresso
+* compartilhar conquistas
+* interagir com outros usuários
+* manter motivação e disciplina através da comunidade
