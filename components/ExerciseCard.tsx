@@ -10,14 +10,14 @@ export default function ExerciseCard({ selectedExercises, setSelectedExercises }
     return (
 
         selectedExercises.map((exercise, index) => (
-
-            <div key={index} className="flex justify-start gap-50 mt-6 bg-white rounded-xl border border-gray-200 p-6">
+            
+            <div key={index}  className="flex flex-wrap justify-start gap-50 mt-6 bg-white rounded-xl border border-gray-200 p-6">
                 <div className=" flex items-center justify-start">
                     <img src={exercise.gifurl} alt={exercise.name ? exercise.name : undefined} className="w-60 h-60 rounded-lg border border-gray-200 " />
                 </div>
-                <div className="flex flex-col justify-center gap-3 items-center border-2 border-orange-200 p-4 rounded-lg bg-orange-50">
+                <div className="flex w-1/4 flex-col justify-center gap-3 items-center border-2 border-orange-200 p-4 rounded-lg bg-orange-50">
                     <h3 className="text-sm font-bold text-gray-700 mb-4">
-                        Exercício: {exercise.name}
+                        Exercício: {exercise.name} - ID: {exercise.id}
                     </h3>
                     <p className="text-sm text-gray-500 mt-2">
                         Músculos Alvo: {exercise?.targetmuscles?.join(', ')}

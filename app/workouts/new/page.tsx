@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useReducer, useState } from "react";
+import { use, useEffect, useReducer, useState } from "react";
 import { bodyParts, daysOfWeek } from '@/app/types/types'
 import { Search, Plus, X, ChevronDown, Dumbbell, Calendar, Clock, Save } from "lucide-react";
 import SelectComponent from "@/components/selectComponent";
@@ -7,13 +7,15 @@ import { useExercises } from "@/lib/hooks/useExercises";
 import { useAuth } from "@/app/api/contexts/Auth";
 import { useWorkout } from "@/lib/hooks/useWorkout";
 import ExerciseCard from "@/components/ExerciseCard";
+import { unique } from "next/dist/build/utils";
+
 export default function NewWorkoutPage() {
 
     const [openCard, setOpenCard] = useState<boolean>(false);
 
     const { addWorkout, workout, setWorkout } = useWorkout();
 
-    const { loading } = useAuth();
+    const { loading, user } = useAuth();
 
     const { handleTargetMuscle, handleExerciseSearch,
         searchTargetMuscle, selectedTargetMuscle,
@@ -23,23 +25,15 @@ export default function NewWorkoutPage() {
 
     const uniqueMuscle = [...new Set(searchTargetMuscle)];
 
-        useEffect(()  => {
-            const searchMuscles = async () => {
-                
-                    await handleTargetMuscle('chest');
-            }
-            searchMuscles();
-           }, []
-    );
-    useEffect(()  => {
-            const searchExe = async () => {
-                
-                    await handleExerciseSearch('serratus anterior');
-            }
-            searchExe();
-           }, [selectedBodyPart])
-    
-        
+    useEffect(() => {
+        setSelectedBodyPart(bodyParts[0].value);
+        handleTargetMuscle(bodyParts[0].value);
+        setSelectedTargetMuscle(uniqueMuscle[0] || '');
+
+    }, [openCard]);
+
+
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
             <div className="max-w-7xl mx-auto">
@@ -103,12 +97,12 @@ export default function NewWorkoutPage() {
                                     </div>
 
 
-                                {/*componente de select para escolher o dia da semana do treino*/}
+                                    {/*componente de select para escolher o dia da semana do treino*/}
                                     <SelectComponent
                                         label="Dia da Semana"
-                                        options={[
-                                            ...daysOfWeek.map(day => ({ key: day.key, value: day.value }))
-                                        ]}
+                                        options={
+                                            daysOfWeek.map(day => ({ key: day.key, value: day.value }))
+                                        }
                                         onChange={(value) => setWorkout({ ...workout, dateworkout: Number(value) })}
                                         value={workout.dateworkout || ''}
 
@@ -121,13 +115,14 @@ export default function NewWorkoutPage() {
 
                                     <div className="flex flex-col sm:flex-row gap-3">
                                         <SelectComponent
-                                        value={selectedBodyPart}
+                                            value={selectedBodyPart}
                                             options={bodyParts}
                                             onChange={(value) => {
                                                 setSelectedBodyPart(value);
                                                 handleTargetMuscle(value);
+                                               
                                             }}
-                                            
+
                                             label="Parte do Corpo"
                                         />
 
@@ -139,7 +134,7 @@ export default function NewWorkoutPage() {
 
                                                 <SelectComponent
                                                     label="Músculo Alvo"
-                                                    value={selectedTargetMuscle}
+                                                    value={selectedTargetMuscle[0]}
                                                     onChange={(value) => setSelectedTargetMuscle(value)}
                                                     options={uniqueMuscle.map(muscle => ({ key: muscle, value: muscle }))}
 
@@ -152,11 +147,11 @@ export default function NewWorkoutPage() {
 
                                         {selectedBodyPart && selectedTargetMuscle && (
                                             <button
-                                                className="px-4 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs transition-all duration-200 flex items-center gap-2 shadow-l shadow-orange-200 hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                                className="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-orange-200 hover:shadow-xl"
                                                 onClick={(e) => {
                                                     e.preventDefault();
                                                     handleExerciseSearch(selectedBodyPart);
-                                                    
+
                                                 }}
                                                 disabled={loading}
                                             >
@@ -282,13 +277,29 @@ export default function NewWorkoutPage() {
                                     </button>
 
                                     <button
+                                    type="button"
                                         className="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-orange-200 hover:shadow-xl"
-                                        onClick={async () => {
+                                        onClick={async (e) => {
+                                            e.preventDefault();
                                             try {
                                                 const result = await addWorkout(workout, selectedExercises);
                                                 alert(result.workout.name + ' salvo com sucesso!');
+                                                console.log(`user ${user}`);
+                                                console.log(`Treino ${result.workout.name} salvo pelo usuário ${user}`);
+                                                console.log(`Exercícios ${selectedExercises.map(e => e.name).join(', ')} adicionados ao treino ${result.workout.name}`);
+
+                                                setWorkout({
+                                                    name: '',
+                                                    description: '',
+                                                    dateworkout: 1,
+                                                    user_id: '',
+                                                    created_at: new Date()
+                                                });
+                                                setSelectedExercises([]);
+                                                setOpenCard(false);
                                             } catch (error) {
                                                 console.error('Erro ao salvar treino:', error);
+
                                                 alert(error instanceof Error ? error.message : 'Erro desconhecido');
                                             }
                                         }}
@@ -303,12 +314,12 @@ export default function NewWorkoutPage() {
                 </div>
 
                 {/* Resumo do Treino (se houver exercícios) adicionar sets, reps, descanso ordem do exercício */}
-                {selectedExercises.length > 0 && 
+                {selectedExercises.length > 0 &&
                     <ExerciseCard selectedExercises={selectedExercises} setSelectedExercises={setSelectedExercises}></ExerciseCard>
                 }
             </div>
         </div>
-                    
-      
+
+
     );
 }

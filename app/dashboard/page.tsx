@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { 
+import {
   Activity, Calendar, Target,
   Flame, Heart, Zap, Clock,
   Dumbbell, User, Settings, LogOut,
@@ -11,8 +11,10 @@ import { supabase } from '@/lib/server/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '../api/contexts/Auth'
-import { Workout_logs } from '../types/types'
-
+import { Workout, Workout_logs, daysOfWeek } from '../types/types'
+import { useWorkout } from '@/lib/hooks/useWorkout'
+import { start } from 'repl'
+import GetDayWorkoutBtn from '@/components/GetDayWorkoutBtn'
 
 interface Metric {
   name: string
@@ -23,48 +25,48 @@ interface Metric {
 }
 
 export default function Dashboard() {
-  const { user, logout } = useAuth()!;
-  const [workouts, setWorkouts] = useState<Workout_logs[]>([])
+  const { user, logout, startLoading, stopLoading } = useAuth()!;
+  const [workouts, setWorkouts] = useState<Workout[]>([])
   const router = useRouter()
 
- 
+  const { getWeeklyWorkouts } = useWorkout();
   const metrics: Metric[] = [
-    { 
-      name: 'Calorias', 
-      value: '1,250', 
-      change: +12, 
+    {
+      name: 'Calorias',
+      value: '1,250',
+      change: +12,
       icon: <Flame className="h-5 w-5" />,
       color: 'bg-orange-100 text-orange-600'
     },
-    { 
-      name: 'Tempo', 
-      value: '2h 15m', 
-      change: +25, 
+    {
+      name: 'Tempo',
+      value: '2h 15m',
+      change: +25,
       icon: <Clock className="h-5 w-5" />,
       color: 'bg-blue-100 text-blue-600'
     },
-    { 
-      name: 'Streak', 
-      value: '7 dias', 
-      change: +1, 
+    {
+      name: 'Streak',
+      value: '7 dias',
+      change: +1,
       icon: <Zap className="h-5 w-5" />,
       color: 'bg-yellow-100 text-yellow-600'
     },
   ]
 
-  
 
-  // Obter dados do usuário
+
+
   useEffect(() => {
-    const fetchUser = async () => {
-      const { data: workouts } = await supabase
-        .from('workouts')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(5)
-      setWorkouts(workouts || [])
+
+    const fetchWeeklyWorkout = async () => {
+      const result = await getWeeklyWorkouts();
+      if (result) {
+        setWorkouts(result);
+      }
+
     }
-    fetchUser()
+    fetchWeeklyWorkout()
   }, [])
 
   // Sair da conta
@@ -76,13 +78,13 @@ export default function Dashboard() {
   // Formatar data
   function formatDate(dateString: string) {
     const date = new Date(dateString)
-    return date.toLocaleDateString('pt-BR', { 
+    return date.toLocaleDateString('pt-BR', {
       day: 'numeric',
       month: 'short'
     })
   }
 
-  
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -102,7 +104,7 @@ export default function Dashboard() {
                 <p className="text-sm font-medium">{user?.name || 'Usuário'}</p>
                 <p className="text-xs text-gray-500">{user?.email || ''}</p>
               </div>
-              <button 
+              <button
                 onClick={handleLogout}
                 className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition"
                 title="Sair"
@@ -114,9 +116,8 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Conteúdo */}
+
       <div className="p-4">
-        {/* Saudação */}
         <div className="mb-6">
           <h2 className="text-xl font-bold text-gray-900">
             Olá, {user?.name?.split(' ')[0] || 'Atleta'}!
@@ -124,31 +125,14 @@ export default function Dashboard() {
           <p className="text-gray-600">Bem-vindo ao seu dashboard</p>
         </div>
 
-        {/* Métricas */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-          {metrics.map((metric, index) => (
-            <div key={index} className="bg-white rounded-lg border p-4">
-              <div className="flex items-center justify-between mb-2">
-                <div className={`p-2 rounded-lg ${metric.color}`}>
-                  {metric.icon}
-                </div>
-                <span className={`text-sm ${metric.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {metric.change >= 0 ? '+' : ''}{metric.change}%
-                </span>
-              </div>
-              <h3 className="text-lg font-bold">{metric.value}</h3>
-              <p className="text-sm text-gray-500">{metric.name}</p>
-            </div>
-          ))}
-        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-       
+
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg border p-5">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-lg">Treinos Recentes</h3>
-                <Link 
+                <Link
                   href="/workouts"
                   className="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1"
                 >
@@ -157,32 +141,15 @@ export default function Dashboard() {
               </div>
 
               <div className="space-y-3">
-                {workouts.map((workout) => (
-                  <div 
-                    key={workout.id} 
-                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-gray-100 rounded-lg">
-                        {workout.description === 'cardio' && <Activity className="h-5 w-5 text-blue-500" />}
-                        {workout.description === 'strength' && <Dumbbell className="h-5 w-5 text-purple-500" />}
-                        {workout.description === 'flexibility' && <Target className="h-5 w-5 text-green-500" />}
-                      </div>
-                      <div>
-                        <h4 className="font-medium">{workout.name}</h4>
-                        <p className="text-sm text-gray-500">
-                          {workout.duration_minutes} min • {formatDate(workout.created_at?.toString() || '')}
-                        </p>
-                      </div>
-                    </div>
-                    <button className="p-1 hover:bg-gray-100 rounded">
-                      <ChevronRight className="h-5 w-5 text-gray-400" />
-                    </button>
+                {workouts.map((workout, index) => (
+                  <div className='flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition' key={index}>
+                    <GetDayWorkoutBtn className="w-full " index={index} workout={workout || 0} onClick={() => (workout)} />
+
                   </div>
                 ))}
               </div>
 
-              <Link 
+              <Link
                 href="/workouts/new"
                 className="mt-4 w-full py-2 border border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-orange-400 hover:text-gray-800 transition flex items-center justify-center gap-2"
               >
@@ -192,9 +159,9 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Sidebar */}
+
           <div className="space-y-4">
-            {/* Próximo Treino */}
+
             <div className="bg-gradient-to-r from-red-500 to-yellow-500 rounded-lg p-5 text-white">
               <h3 className="font-semibold mb-2">Próximo Treino</h3>
               <div className="flex items-center gap-2 mb-3">
@@ -214,7 +181,7 @@ export default function Dashboard() {
             <div className="bg-white rounded-lg border p-5">
               <h3 className="font-semibold mb-3">Menu Rápido</h3>
               <div className="space-y-2">
-                <Link 
+                <Link
                   href="/exercises"
                   className="flex items-center justify-between p-2 rounded hover:bg-gray-50 transition"
                 >
@@ -224,8 +191,8 @@ export default function Dashboard() {
                   </div>
                   <ChevronRight className="h-4 w-4 text-gray-400" />
                 </Link>
-                
-                <Link 
+
+                <Link
                   href="/profile"
                   className="flex items-center justify-between p-2 rounded hover:bg-gray-50 transition"
                 >
@@ -235,8 +202,8 @@ export default function Dashboard() {
                   </div>
                   <ChevronRight className="h-4 w-4 text-gray-400" />
                 </Link>
-                
-                <Link 
+
+                <Link
                   href="/settings"
                   className="flex items-center justify-between p-2 rounded hover:bg-gray-50 transition"
                 >
@@ -249,7 +216,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Meta do Mês */}
+            {/* Meta do Mês 
             <div className="bg-white rounded-lg border p-5">
               <h3 className="font-semibold mb-3">Meta do Mês</h3>
               <div className="mb-3">
@@ -258,7 +225,7 @@ export default function Dashboard() {
                   <span>8/16</span>
                 </div>
                 <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className="h-full bg-gradient-to-r from-red-500 to-yellow-500 rounded-full"
                     style={{ width: '50%' }}
                   ></div>
@@ -268,6 +235,7 @@ export default function Dashboard() {
                 Continue assim! Você está na metade.
               </p>
             </div>
+            */}
           </div>
         </div>
 
