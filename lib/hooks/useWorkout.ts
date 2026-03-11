@@ -60,7 +60,7 @@ export const useWorkout = () => {
       stopLoading();
     }
   };
-
+  
   //buscar treinos da semana para o dashboard
   const getWeeklyWorkouts = async () => {
     const weeklyWorkouts: Workout[] | any = [];
@@ -70,9 +70,11 @@ export const useWorkout = () => {
       const { data, error } = await supabase
         .from('workout')
         .select('*')
+        .order('created_at', { ascending: false })
         .eq('user_id', user?.id)
         .eq('dateworkout', i)
         .limit(1);
+        
 
       if (data != null) {
         weeklyWorkouts.push(...data);

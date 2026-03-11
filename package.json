@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev ",
     "fetch-exercises": "node exercice.tsx",
     "build": "next build",
     "start": "next start",

@@ -21,7 +21,7 @@ export const daysOfWeek: { key: string, value: number }[] = [
   { key: 'Quinta-feira', value: 4 },
   { key: 'Sexta-feira', value: 5 },
   { key: 'Sábado', value: 6 },
-  { key: 'Domingo', value: 7 },
+  { key: 'Domingo', value: 0 },
 ];
 
  // Função para determinar cor baseada no dia da semana

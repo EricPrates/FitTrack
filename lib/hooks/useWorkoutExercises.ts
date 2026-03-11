@@ -5,7 +5,7 @@ import { Weight } from 'lucide-react';
 import { useExercises } from './useExercises';
 export const useWorkoutExercises = () => {
     const { startLoading, stopLoading, user } = useAuth();
-   
+    const {getExerciseById} = useExercises();
     const addExercisesToWorkout = async (exerciseData: Exercise[], workoutId: string) => {
     const results = await Promise.all(exerciseData.map(async (exercise) => {
         console.log(`Adicionando exercício: ${exercise.id} ao treino ${workoutId}`);
@@ -52,7 +52,29 @@ export const useWorkoutExercises = () => {
         count: results.length
     };
 };
+const getExercisesByWorkout = async (workoutId : string) : Promise<Exercise[]> => {
+    startLoading();
+    const { data, error } = await supabase
+    .from('workout_exercises')
+    .select('exercise_id')
+    .eq('workout_id', workoutId);
+    
+    if(error){
+        console.log('Erro ao buscar exercícios do treino:', error.message);
+        stopLoading();
+        throw new Error('Erro ao buscar exercícios do treino: ' + error.message);
+    }
+    if(!data || data.length === 0){
+        console.log('Nenhum exercício encontrado para o treino:', workoutId);
+        stopLoading();
+        return [];
+    }
+    
+    
+    const exercises = await Promise.all(data.map(item => getExerciseById(item.exercise_id)));
+    stopLoading();
+    return exercises.filter(ex => ex !== null) as Exercise[];
+}
 
-
-    return { addExercisesToWorkout };
+    return { addExercisesToWorkout, getExercisesByWorkout };
 };

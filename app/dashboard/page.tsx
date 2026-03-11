@@ -25,8 +25,9 @@ interface Metric {
 }
 
 export default function Dashboard() {
-  const { user, logout, startLoading, stopLoading } = useAuth()!;
+  const { user, logout, startLoading, stopLoading, } = useAuth()!;
   const [workouts, setWorkouts] = useState<Workout[]>([])
+  const[workoutDay, setWorkoutDay] = useState<Workout>()
   const router = useRouter()
 
   const { getWeeklyWorkouts } = useWorkout();
@@ -54,28 +55,33 @@ export default function Dashboard() {
     },
   ]
 
-
+  
 
 
   useEffect(() => {
 
     const fetchWeeklyWorkout = async () => {
-      const result = await getWeeklyWorkouts();
-      if (result) {
-        setWorkouts(result);
-      }
+      if (user?.id) {
 
+        const result = await getWeeklyWorkouts();
+        if (result) {
+          setWorkouts(result);
+          const workoutOfDay = result.find((workout: Workout) => workout.dateworkout === new Date().getDay());
+          setWorkoutDay(workoutOfDay);
+        }
+
+      }
     }
     fetchWeeklyWorkout()
   }, [])
 
-  // Sair da conta
+
   async function handleLogout() {
     await supabase.auth.signOut()
     router.push('/login')
   }
 
-  // Formatar data
+
   function formatDate(dateString: string) {
     const date = new Date(dateString)
     return date.toLocaleDateString('pt-BR', {
@@ -88,7 +94,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
+
       <div className="bg-white shadow-sm">
         <div className="px-4 py-4">
           <div className="flex items-center justify-between">
@@ -131,10 +137,10 @@ export default function Dashboard() {
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg border p-5">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-lg">Treinos Recentes</h3>
+                <h3 className="font-semibold text-lg">Treinos da Semana</h3>
                 <Link
                   href="/workouts"
-                  className="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1"
+                  className="text-blue-600 hover:text-blue-800 text-sm flex items-center"
                 >
                   Ver todos <ChevronRight className="h-4 w-4" />
                 </Link>
@@ -142,8 +148,8 @@ export default function Dashboard() {
 
               <div className="space-y-3">
                 {workouts.map((workout, index) => (
-                  <div className='flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition' key={index}>
-                    <GetDayWorkoutBtn className="w-full " index={index} workout={workout || 0} onClick={() => (workout)} />
+                  <div className='flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition ' key={index}>
+                    <GetDayWorkoutBtn className="w-full align-start" index={index} workout={workout || 0} onClick={() => (workout)} />
 
                   </div>
                 ))}
@@ -159,23 +165,25 @@ export default function Dashboard() {
             </div>
           </div>
 
-
           <div className="space-y-4">
-
+           
+              
             <div className="bg-gradient-to-r from-red-500 to-yellow-500 rounded-lg p-5 text-white">
-              <h3 className="font-semibold mb-2">Próximo Treino</h3>
+              <h3 className="font-semibold mb-2">Treino de hoje</h3>
+
               <div className="flex items-center gap-2 mb-3">
                 <Calendar className="h-4 w-4 text-white" />
-                <span className="text-sm text-white">Amanhã, 18:00</span>
+                <span className="text-sm text-white">{ workoutDay?.name || 'Nenhum treino planejado' }</span>
               </div>
               <div className="mb-4">
-                <div className="text-lg font-bold">Treino de Costas</div>
-                <p className="text-sm text-white/90">4 exercícios • 45 min</p>
+                <div className="text-lg font-bold">Exercícios</div>
+                <p className="text-sm text-white/90">{ workoutDay?.exercises?.length} exercícios</p>
               </div>
               <button className="w-full bg-white text-red-600 py-2 rounded-lg font-medium hover:bg-red-50 transition">
                 Começar
               </button>
             </div>
+            
 
             {/* Menu Rápido */}
             <div className="bg-white rounded-lg border p-5">
@@ -266,7 +274,7 @@ export default function Dashboard() {
           </Link>
         </div>
       </div>
-    </div>
+    </div >
   )
 }
 
